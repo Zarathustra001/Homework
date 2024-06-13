@@ -4,9 +4,10 @@ index = 0
 #Чтобы не выйти за границу списка, в условии цикла while рекомендуется сравнивать текущий индекс и длину списка
 while index < len(my_list):
     number = my_list[index]
-
+    # 0 - не отрицательное и не положительное число
     if number <= 0:
         break
 
-print(number)
-index += 1
+    print(number)
+
+    index += 1
