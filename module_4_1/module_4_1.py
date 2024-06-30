@@ -9,7 +9,6 @@ while True:
     except ValueError:
         print("Пожалуйста, введите корректные числовые значения.")
 
-# Вызов функций
 result_fake = fake_divide(first, second)
 result_true = true_divide(first, second)
 
