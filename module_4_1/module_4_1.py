@@ -1,16 +1,13 @@
 from fake_math import divide as fake_divide
 from true_math import divide as true_divide
 
-while True:
-    try:
-        first = float(input("Введите первое число: "))
-        second = float(input("Введите второе число: "))
-        break
-    except ValueError:
-        print("Пожалуйста, введите корректные числовые значения.")
+result1 = fake_divide(69, 3)
+result2 = fake_divide(3, 0)
+result3 = true_divide(49, 7)
+result4 = true_divide(15, 0)
 
-result_fake = fake_divide(first, second)
-result_true = true_divide(first, second)
+print(result1)
+print(result2)
+print(result3)
+print(result4)
 
-print(f"Результат деления {first} на {second} в fake_math: {result_fake}")
-print(f"Результат деления {first} на {second} в true_math: {result_true}")
