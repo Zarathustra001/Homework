@@ -3,23 +3,29 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher import FSMContext
 
-
-API_TOKEN = "" #ключ
+API_TOKEN = ""  # ключ
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot, storage=MemoryStorage())
 
 class UserState(StatesGroup):
+    gender = State()
     age = State()
     growth = State()
     weight = State()
 
 @dp.message_handler(commands=['start'])
 async def start_message(message: types.Message):
-    await message.answer("Привет! Я бот помогающий твоему здоровью.")
-@dp.message_handler(text="Calories")
-async def set_age(message: types.Message):
-    await message.answer("Введите свой возраст:")
+    await message.answer("Привет! Я бот, помогающий твоему здоровью. Выберите ваш пол: /male или /female")
+
+@dp.message_handler(commands=['male'])
+async def set_gender_male(message: types.Message):
+    await message.answer("Вы выбрали пол: Мужской. Введите свой возраст:")
+    await UserState.age.set()
+
+@dp.message_handler(commands=['female'])
+async def set_gender_female(message: types.Message):
+    await message.answer("Вы выбрали пол: Женский. Введите свой возраст:")
     await UserState.age.set()
 
 @dp.message_handler(state=UserState.age)
@@ -44,8 +50,14 @@ async def send_calories(message: types.Message, state: FSMContext):
     growth = int(data['growth'])
     weight = int(data['weight'])
 
-    # Формула Миффлина - Сан Жеора для мужчин
-    calories = 10 * weight + 6.25 * growth - 5 * age + 5
+    # Определяем пол из команды
+    gender = "male" if message.get_command() == "/male" else "female"
+
+    # Формула Миффлина - Сан Жеора
+    if gender == "male":
+        calories = 10 * weight + 6.25 * growth - 5 * age + 5
+    else:  # female
+        calories = 10 * weight + 6.25 * growth - 5 * age - 161
 
     await message.answer(f"Ваша норма калорий: {calories:.2f} ккал.")
     await state.finish()  # Завершаем машину состояний
