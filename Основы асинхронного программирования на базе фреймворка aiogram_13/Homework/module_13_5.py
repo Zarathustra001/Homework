@@ -4,26 +4,19 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
-API_TOKEN = ""  # Ключ
+API_TOKEN = ""  # ключ
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot, storage=MemoryStorage())
 
 
 class UserState(StatesGroup):
-    gender = State()  # Состояние для выбора пола
+    gender = State()
     age = State()
     growth = State()
     weight = State()
 
 
-# Создаем клавиатуру для выбора пола
-gender_keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-button_male = KeyboardButton("Мужской")
-button_female = KeyboardButton("Женский")
-gender_keyboard.add(button_male, button_female)
-
-# Создаем основную клавиатуру
 main_keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
 button_calculate = KeyboardButton("Рассчитать")
 button_info = KeyboardButton("Информация")
@@ -37,18 +30,19 @@ async def start_message(message: types.Message):
 
 @dp.message_handler(text="Рассчитать")
 async def set_gender(message: types.Message):
-    await message.answer("Выберите ваш пол:", reply_markup=gender_keyboard)
-    await UserState.gender.set()
+    await message.answer("Выберите ваш пол: /male или /female")
 
 
-@dp.message_handler(state=UserState.gender)
-async def set_age(message: types.Message, state: FSMContext):
-    if message.text in ["Мужской", "Женский"]:
-        await state.update_data(gender=message.text)
-        await message.answer("Введите свой возраст:")
-        await UserState.age.set()
-    else:
-        await message.answer("Пожалуйста, выберите пол: 'Мужской' или 'Женский'.")
+@dp.message_handler(commands=['male'])
+async def set_gender_male(message: types.Message):
+    await message.answer("Вы выбрали пол: Мужской. Введите свой возраст:")
+    await UserState.age.set()
+
+
+@dp.message_handler(commands=['female'])
+async def set_gender_female(message: types.Message):
+    await message.answer("Вы выбрали пол: Женский. Введите свой возраст:")
+    await UserState.age.set()
 
 
 @dp.message_handler(state=UserState.age)
@@ -75,22 +69,21 @@ async def set_weight(message: types.Message, state: FSMContext):
 async def send_calories(message: types.Message, state: FSMContext):
     if message.text.isdigit():
         await state.update_data(weight=message.text)
-        data = await state.get_data()  # Получаем все данные
-
-        # Извлекаем данные
+        data = await state.get_data()
         age = int(data['age'])
         growth = int(data['growth'])
         weight = int(data['weight'])
-        gender = data['gender']
 
-        # Формула
-        if gender == "Мужской":
+        gender = "male" if data.get('gender') == "male" else "female"
+
+        # Формула Миффлина - Сан Жеора
+        if gender == "male":
             calories = 10 * weight + 6.25 * growth - 5 * age + 5
-        else:
+        else:  # female
             calories = 10 * weight + 6.25 * growth - 5 * age - 161
 
         await message.answer(f"Ваша норма калорий: {calories:.2f} ккал.")
-        await state.finish()  # Завершаем машину состояний
+        await state.finish()
     else:
         await message.answer("Пожалуйста, введите корректный вес (число).")
 
