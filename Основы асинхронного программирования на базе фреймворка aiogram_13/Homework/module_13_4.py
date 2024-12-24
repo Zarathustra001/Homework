@@ -16,6 +16,12 @@ class UserState(StatesGroup):
     weight = State()
 
 
+@dp.message_handler()
+async def all_messages(message: types.Message):
+    print('Введите команду /start, чтобы начать общение.')
+    await message.reply('Введите команду /start, чтобы начать общение.')
+
+
 @dp.message_handler(commands=['start'])
 async def start_message(message: types.Message):
     await message.answer("Привет! Я бот, помогающий твоему здоровью. Выберите ваш пол: /male или /female")
