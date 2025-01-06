@@ -5,9 +5,11 @@ api = ""  #ключ
 bot = Bot(token=api)
 dp = Dispatcher(bot, storage=MemoryStorage())
 
+
 @dp.message_handler(commands=['start'])
 async def start_message(message: types.Message):
     await message.answer("Привет! Я бот помогающий твоему здоровью.")
+
 
 @dp.message_handler()
 async def all_message(message: types.Message):

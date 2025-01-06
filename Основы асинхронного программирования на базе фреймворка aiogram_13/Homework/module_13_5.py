@@ -90,7 +90,8 @@ async def send_calories(message: types.Message, state: FSMContext):
 
 @dp.message_handler(text="Информация")
 async def info_message(message: types.Message):
-    await message.answer("Я бот, который помогает рассчитать вашу норму калорий на основе ваших параметров тела. Нажмите 'Рассчитать', чтобы начать.")
+    await message.answer("Я бот, который помогает рассчитать вашу норму калорий на основе ваших параметров тела."
+                         "Нажмите 'Рассчитать', чтобы начать.")
 
 
 if __name__ == "__main__":
