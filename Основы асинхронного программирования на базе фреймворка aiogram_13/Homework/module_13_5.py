@@ -4,7 +4,7 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
-API_TOKEN = ""  # ключ
+API_TOKEN = "8194773095:AAH9YJ1hqZljd-KlvfqD4FD3SPJ2sJnf9p4"  # Замените на ваш токен
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot, storage=MemoryStorage())
@@ -31,16 +31,19 @@ async def start_message(message: types.Message):
 @dp.message_handler(text="Рассчитать")
 async def set_gender(message: types.Message):
     await message.answer("Выберите ваш пол: /male или /female")
+    await UserState.gender.set()
 
 
-@dp.message_handler(commands=['male'])
-async def set_gender_male(message: types.Message):
+@dp.message_handler(commands=['male'], state=UserState.gender)
+async def set_gender_male(message: types.Message, state: FSMContext):
+    await state.update_data(gender='male')
     await message.answer("Вы выбрали пол: Мужской. Введите свой возраст:")
     await UserState.age.set()
 
 
-@dp.message_handler(commands=['female'])
-async def set_gender_female(message: types.Message):
+@dp.message_handler(commands=['female'], state=UserState.gender)
+async def set_gender_female(message: types.Message, state: FSMContext):
+    await state.update_data(gender='female')
     await message.answer("Вы выбрали пол: Женский. Введите свой возраст:")
     await UserState.age.set()
 
@@ -73,8 +76,7 @@ async def send_calories(message: types.Message, state: FSMContext):
         age = int(data['age'])
         growth = int(data['growth'])
         weight = int(data['weight'])
-
-        gender = "male" if data.get('gender') == "male" else "female"
+        gender = data['gender']
 
         # Формула Миффлина - Сан Жеора
         if gender == "male":
@@ -92,6 +94,11 @@ async def send_calories(message: types.Message, state: FSMContext):
 async def info_message(message: types.Message):
     await message.answer("Я бот, который помогает рассчитать вашу норму калорий на основе ваших параметров тела."
                          "Нажмите 'Рассчитать', чтобы начать.")
+
+
+@dp.message_handler(lambda message: not message.text.startswith('/'))
+async def all_messages(message: types.Message):
+    await message.reply('Пожалуйста, введите команду /start, чтобы начать общение.')
 
 
 if __name__ == "__main__":
