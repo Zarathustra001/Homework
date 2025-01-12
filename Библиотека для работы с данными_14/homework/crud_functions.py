@@ -2,26 +2,43 @@ import sqlite3
 
 
 def initiate_db():
-    conn = sqlite3.connect('products.db')
-    cursor = conn.cursor()
+    connection = sqlite3.connect('database.db')
+    cursor = connection.cursor()
+
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS Products (
+        CREATE TABLE IF NOT EXISTS Users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT NOT NULL,
-            description TEXT,
-            price INTEGER NOT NULL,
-            image_url TEXT
+            username TEXT NOT NULL UNIQUE,
+            email TEXT NOT NULL,
+            age INTEGER NOT NULL,
+            balance INTEGER NOT NULL DEFAULT 1000
         )
     ''')
-    conn.commit()
-    conn.close()
+
+    connection.commit()
+    connection.close()
 
 
-def get_all_products():
-    conn = sqlite3.connect('products.db')
-    cursor = conn.cursor()
-    cursor.execute('SELECT * FROM Products')
-    products = cursor.fetchall()
-    conn.close()
-    return products
+def add_user(username, email, age):
+    connection = sqlite3.connect('database.db')
+    cursor = connection.cursor()
 
+    cursor.execute('''
+        INSERT INTO Users (username, email, age)
+        VALUES (?, ?, ?)
+    ''', (username, email, age))
+
+    connection.commit()
+    connection.close()
+
+
+def is_included(username):
+    connection = sqlite3.connect('database.db')
+    cursor = connection.cursor()
+
+    cursor.execute('SELECT * FROM Users WHERE username = ?', (username,))
+    user = cursor.fetchone()
+
+    connection.close()
+
+    return user is not None
